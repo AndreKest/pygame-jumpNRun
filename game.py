@@ -43,7 +43,7 @@ class Game:
         self.clouds = Clouds(load_images('clouds'), count=16)
 
         # Initialisiere Spieler
-        self.player = Player(self, (80, 60), (8, 15))
+        self.player = Player(self, (50, 50), (8, 15))
 
         # Initialisiere Gegner
         # TODO
@@ -94,16 +94,17 @@ class Game:
                 
                 # Verarbeite Spieler-Eingaben
                 if event.type == pygame.KEYDOWN:    # Taste gedrückt?
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_a:
                         self.movement[0] = True     # Bewegung nach links
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_d:
                         self.movement[1] = True     # Bewegung nach rechts
-                    if event.key == pygame.K_UP:
+                    if event.key == pygame.K_w:
                         self.player.velocity[1] = -3    # Sprung nach oben ist negative Geschwindigkeit in y-Richtung
+
                 if event.type == pygame.KEYUP:      # Taste losgelassen?
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_a:
                         self.movement[0] = False    # Beende Bewegung nach links
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_d:
                         self.movement[1] = False    # Beende Bewegung nach rechts
                     
 
