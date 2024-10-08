@@ -40,6 +40,33 @@ class Tilemap:
         self.tile_size = tile_size      # Größe der Kacheln
         self.tilemap = {}               # Speichert alle Kacheln, die Objekte enthalten mit Position und Typ  
 
+    def extract(self, id_pairs, keep=False):
+        matches = []
+        del_keys = []
+
+        # Gehe durch alle Kacheln
+        for loc in self.tilemap:
+            # Nehme Kachel an Position loc
+            tile = self.tilemap[loc]
+            # Wenn Kachel-Typ und Variante in id_pairs vorhanden sind, dann füge Kachel der Liste hinzu
+            if (tile['type'], tile['variant']) in id_pairs:
+                matches.append(tile.copy())
+                matches[-1]['pos'] = matches[-1]['pos'].copy()
+                matches[-1]['pos'][0] *= self.tile_size
+                matches[-1]['pos'][1] *= self.tile_size
+                # Wenn keep=False, dann lösche Kachel aus tilemap
+                if not keep:
+                    del_keys.append(loc)
+
+        # Lösche Kacheln aus tilemap, wenn keep=False
+        if not keep:
+            for loc in del_keys:
+                del self.tilemap[loc]
+        
+
+
+        return matches
+
 
     def tiles_around(self, pos):
         """ Gibt alle Nachbar-Kacheln zurück, die um die Position pos liegen """
@@ -82,6 +109,14 @@ class Tilemap:
         # self.tilemap = data['tilemap']
         # self.tile_size = data['tile_size']
         # f.close()
+
+    def solid_check(self, pos):
+        """ Prüfe ob Kachel an Position pos fest ist (Boden ist) """
+        tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
+        if tile_loc in self.tilemap:
+            if self.tilemap[tile_loc]['type'] in PHYSICS_TILES:
+                return self.tilemap[tile_loc]
+        
 
     def physics_rects_around(self, pos):
         """
@@ -137,6 +172,14 @@ class Tilemap:
         #         if loc in self.tilemap:
         #             tile = self.tilemap[loc]
         #             surf.blit(self.game.assets[tile['type']][tile['variant']], (x*self.tile_size - offset[0], y*self.tile_size - offset[1]))
+
+    def check_finished(self):
+        """ Prüfe, ob der Spieler das Ziel erreicht hat """
+        for loc in self.tilemap:
+            tile = self.tilemap[loc]
+            if tile['type'] == 'flag':
+                return True
+        return False
 
 
     

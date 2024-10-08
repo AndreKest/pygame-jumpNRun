@@ -1,3 +1,5 @@
+import random 
+
 import pygame
 
 class PhysicsEntity:
@@ -121,10 +123,46 @@ class PhysicsEntity:
         surf.blit(pygame.transform.flip(self.animation.img(), flip_x=self.flip, flip_y=False), (self.pos[0] - offset[0] + self.anim_offset[0], self.pos[1] - offset[1] + self.anim_offset[1]))
 
 
+class Enemy(PhysicsEntity):
+    def __init__(self, game, pos, size):
+        super().__init__(game, 'enemy', pos, size)
+
+        self.walking = 0        # Anzahl von Frames, die sich der Gegner bewegt
+
+    def update(self, tilemap, movement=(0, 0)):
+        """ Update die Position und Aktion/Animation des Gegners """
+        if self.walking:
+            # Prüfe -7 Pixel links oder 7 Pixel rechts von der Mitte des Gegners, ob Kachel solide (Boden) ist
+            if tilemap.solid_check((self.rect().centerx + (-7 if self.flip else 7), self.pos[1] + 23)):
+                # Wemm Gegner gegen Wand läuft, dann drehe ihn um
+                if (self.collisions['right'] or self.collisions['left']):
+                    self.flip = not self.flip
+                else:
+                    # Werde langsamer, wenn Gegner sich bewegt (Je nach Richtung)
+                    movement = (movement[0] - 0.5 if self.flip else 0.5, movement[1])
+            else:
+                # Wenn Gegner auf Kante steht, dann drehe ihn um
+                self.flip = not self.flip
+
+            self.walking = max(0, self.walking - 1)
+        elif random.random() < 0.01:
+            # Anzahl von Frames, die sich der Gegner bewegt
+            self.walking = random.randint(30, 120)
+
+        super().update(tilemap, movement)
+
+        if movement[0] != 0:
+            self.set_action('run')
+        else:
+            self.set_action('idle')
+
+
+
 class Player(PhysicsEntity):
     def __init__(self, game, pos, size):
         super().__init__(game, 'player', pos, size)
         self.air_time = 0
+        self.jumps = 5
 
     def update(self, tilemap, movement=(0, 0)):
         """ Update die Position und Aktion/Animation des Spielers """
@@ -133,6 +171,7 @@ class Player(PhysicsEntity):
         self.air_time += 1
         if self.collisions['down']:
             self.air_time = 0
+            self.jumps = 2
 
         if self.air_time > 4:
             # Wenn Spieler springt (air_time > 4), dann setze Aktion auf 'jump'
@@ -143,3 +182,10 @@ class Player(PhysicsEntity):
         else:
             # Wenn Spieler steht, dann setze Aktion auf 'idle'
             self.set_action('idle')
+        
+    def jump(self):
+        """ Lasse den Spieler springen """
+        if self.jumps:
+            self.velocity[1] = -3       
+            self.jumps -= 1             # Spieler kann nur einmal springen
+            self.air_time = 5           # Animation 'jump' wird angezeigt

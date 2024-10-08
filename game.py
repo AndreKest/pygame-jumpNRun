@@ -5,7 +5,7 @@ import pygame
 from scripts.utils import load_image, load_images, Animation
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
-from scripts.entities import Player
+from scripts.entities import Player, Enemy
 
 
 class Game:
@@ -34,23 +34,36 @@ class Game:
             'stone': load_images('tiles/stone'),
             'player': load_image('entities/player.png'),
             'background': load_image('background.png'),
+            'enemy/idle': Animation(load_images('entities/enemy/idle'), img_duration=6),
+            'enemy/run': Animation(load_images('entities/enemy/run'), img_duration=4),
             'player/idle': Animation(load_images('entities/player/idle'), img_duration=6),
             'player/run': Animation(load_images('entities/player/run'), img_duration=4),
             'player/jump': Animation(load_images('entities/player/jump')),
+            'spawners': load_images('tiles/spawners'),
+            'goal': load_images('tiles/goal'),
         }
 
         # Initialisiere Wolken
         self.clouds = Clouds(load_images('clouds'), count=16)
 
-        # Initialisiere Spieler
-        self.player = Player(self, (50, 50), (8, 15))
-
-        # Initialisiere Gegner
-        # TODO
-
         # Initialisiere Tilemap
         self.tilemap = Tilemap(self, tile_size=16)
         self.tilemap.load('./data/maps/map.json')
+
+        # Spawner (Gegner und Spieler)
+        self.enemies = []
+        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1)]):
+            if spawner['variant'] == 0:
+                # Initialisiere Spieler
+                self.player = Player(self, (50, 50), (8, 15))
+                # Wenn Spawner ein Spieler ist, dann setze die Position des Spielers auf die Position des Spawners
+                self.player.pos = spawner['pos']
+            else:
+                # Wenn Spawner ein Gegner ist, dann erstelle den Gegner an der Position des Spawners
+                enemy = Enemy(self, spawner['pos'], (8, 15))
+                self.enemies.append(enemy)
+
+
  
     def run(self):
         """ Hauptspiel-Schleife """
@@ -80,7 +93,9 @@ class Game:
             self.player.render(self.display, offset=render_scroll)
 
             # Gegner
-            # TODO
+            for enemy in self.enemies.copy():
+                enemy.update(self.tilemap, (0, 0))
+                enemy.render(self.display, offset=render_scroll)
 
 
             # ================================================================================================
@@ -99,7 +114,7 @@ class Game:
                     if event.key == pygame.K_d:
                         self.movement[1] = True     # Bewegung nach rechts
                     if event.key == pygame.K_w:
-                        self.player.velocity[1] = -3    # Sprung nach oben ist negative Geschwindigkeit in y-Richtung
+                        self.player.jump()         # Sprung nach oben ist negative Geschwindigkeit in y-Richtung
 
                 if event.type == pygame.KEYUP:      # Taste losgelassen?
                     if event.key == pygame.K_a:
