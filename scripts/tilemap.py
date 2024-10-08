@@ -2,8 +2,25 @@ import json
 
 import pygame
 
+# Regeln für die automatische Kachelsetzung
+# Wenn Nachbarn mit Index Key vorhanden sind, dann setze die Kachel mit Value
+# Wemm Es gibt 9 unterschiedliche Gras- und Stein-Kacheln, abhängig von den Nachbarn, die vorhanden sind, soll die entsprechende Kachel automatisch gesetzt werden
+AUTOTILE_MAP = {
+    tuple(sorted([(1, 0), (0, 1)])): 0,
+    tuple(sorted([(1, 0), (0, 1), (-1, 0)])): 1,
+    tuple(sorted([(-1, 0), (0, 1)])): 2,
+    tuple(sorted([(-1, 0), (0, -1), (0, 1)])): 3,
+    tuple(sorted([(-1, 0), (0, -1)])): 4,
+    tuple(sorted([(-1, 0), (0, -1), (1, 0)])): 5,
+    tuple(sorted([(1, 0), (0, -1)])): 6,
+    tuple(sorted([(1, 0), (0, -1), (0, 1)])): 7,
+    tuple(sorted([(1, 0), (-1, 0), (0, 1), (0, -1)])): 8,
+
+}
+
 NEIGHBOR_OFFSET = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, -1), (0, 1), (1, 1)] # Positionen aller Nachbarn (8 Richtungen)
-PHYSICS_TILES = {'grass', 'stone'} # Welche Objekte sollen Physik haben
+PHYSICS_TILES = {'grass', 'stone'}      # Welche Objekte sollen Physik haben
+AUTOTILE_TYPES = {'grass', 'stone'}    # Welche Objekte können automatisch gesetzt werden
 
 class Tilemap:
     """
@@ -81,6 +98,30 @@ class Tilemap:
                 
         return rects
     
+    def autotile(self):
+        """ Fülle Kacheln, automatisch mit passenden Kacheln (z.B. Gras, Steine, etc.) """
+        for loc in self.tilemap:
+            tile = self.tilemap[loc]
+            neighbors = set()
+
+            # Prüfe alle Nachbarn (4 Richtungen), ob diese ein Objekt enthalten
+            for shift in [(1, 0), (-1, 0), (0, -1), (0, 1)]:
+                check_loc = str(tile['pos'][0] + shift[0]) + ';' + str(tile['pos'][1] + shift[1])
+                if check_loc in self.tilemap:
+                    # Autotiling nur wenn Nachbar selben Typ hat wie an der aktuellen Position loc
+                    # Zwischen Stein und Gras macht es kein Sinn zu autotilen
+                    if self.tilemap[check_loc]['type'] == tile['type']:
+                        neighbors.add(shift)
+                
+            # Erzeuge Key für AUTOTILE_MAP Regeln
+            neighbors = tuple(sorted(neighbors)) 
+
+            # Wenn tile ein AUTOTILE_TYPE ist und die Nachbarn in AUTOTILE_MAP vorhanden sind, dann setze die Kachel
+            if (tile['type'] in AUTOTILE_TYPES) and (neighbors in AUTOTILE_MAP):
+                tile['variant'] = AUTOTILE_MAP[neighbors]
+                        
+
+
     def render(self, surf, offset=(0, 0)):
         """ Zeichne die Karte (Objekte wie Boden, Steine, Dekorationen, ...) auf das Display """
         # Gehe durch alle Kacheln in tilemap und zeichne die Kacheln auf die Oberfläche

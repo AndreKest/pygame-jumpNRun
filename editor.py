@@ -154,6 +154,9 @@ class Editor:
                     if event.key == pygame.K_o:
                         # Speichere die aktuelle Karte
                         self.tilemap.save('./data/maps/map.json')
+                    if event.key == pygame.K_t:
+                        # Starte autotiling (automatisches Füllen der Kacheln)
+                        self.tilemap.autotile()
 
                 # Taste loslassen
                 if event.type == pygame.KEYUP:
