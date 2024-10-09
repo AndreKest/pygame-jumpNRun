@@ -156,6 +156,20 @@ class Enemy(PhysicsEntity):
         else:
             self.set_action('idle')
 
+    def killed(self):
+        """
+        Prüfe, ob Gegner getötet wurde (Spieler ist auf Gegner gesprungen)
+        
+        True: Gegner wurde getötet
+        False: Gegner lebt
+        """
+        player_rect = self.game.player.rect()
+        enemy_rect = self.rect()
+
+        # Prüfe, ob Spieler auf Gegner gesprungen ist
+        if player_rect.bottom < enemy_rect.centery and player_rect.colliderect(enemy_rect):
+            return True
+
 
 
 class Player(PhysicsEntity):
@@ -192,3 +206,12 @@ class Player(PhysicsEntity):
             self.velocity[1] = -3       
             self.jumps -= 1             # Spieler kann nur einmal springen
             self.air_time = 5           # Animation 'jump' wird angezeigt
+
+    def killed(self):
+        """ Prüfe, ob Spieler getötet wurde (Enemy ist in Spieler gelaufen) """
+        player_rect = self.game.player.rect()
+
+        for enemy in self.game.enemies:
+            enemy_rect = enemy.rect()
+            if player_rect.colliderect(enemy_rect):
+                return True

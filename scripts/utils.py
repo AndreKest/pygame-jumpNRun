@@ -56,7 +56,11 @@ class Animation:
         return self.images[int(self.frame / self.img_duration)]
     
 class GoalFlag:
-    """ Ziel-Flagge """
+    """ 
+    Ziel-Flagge 
+    
+    Wechsel Flagge im Sieg-Zustand zu einer Flagge mit Fahne
+    """
     def __init__(self, game):
         self.game = game
         self.img = load_image('tiles/goal/0.png')

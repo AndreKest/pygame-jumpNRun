@@ -123,9 +123,15 @@ class Game:
                 enemy.update(self.tilemap, (0, 0))
                 enemy.render(self.display, offset=render_scroll)
             
-
+            # Check if Enemy is killed
             for enemy in self.enemies.copy():
-                self.enemies.remove(enemy)
+                if enemy.killed():      # Prüft, ob Spieler den Gegner von oben getroffen hat (angesprungen)
+                    self.enemies.remove(enemy)
+
+            # Check if Enemy killed Player
+            # self.player.killed()    # Prüft, ob Gegner den Spieler getroffen hat (Seitlich berührt)
+            if self.player.killed():
+                self.dead += 1
             
 
             # Ziel-Flagge
