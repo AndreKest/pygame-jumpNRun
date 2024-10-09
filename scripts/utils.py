@@ -114,4 +114,25 @@ class LiveHeart:
         else:
             # Zeichne 0 Leben
             surf.blit(self.img4, (0, 0))
+
+class Heart:
+    """
+    Herzen, um das Leben des Spielers wieder aufzufüllen
+    """
+    def __init__(self, game, pos):
+        self.game = game
+        self.img = load_image('tiles/heart/0.png')
+        self.pos = pos
+        self.rect = pygame.Rect(pos[0], pos[1], self.img.get_width(), self.img.get_height())
+
+    def collect(self):
+        """ Prüfe, ob der Spieler das Herz berührt """
+        if self.rect.colliderect(self.game.player.rect()):
+            self.game.live = min(3, self.game.live + 1)
+            return True
+        return False
+
+    def render(self, surf, offset=(0, 0)):
+        """ Zeichne das Herz """
+        surf.blit(self.img, (self.pos[0] - offset[0], self.pos[1] - offset[1]))
         

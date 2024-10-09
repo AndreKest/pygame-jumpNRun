@@ -2,7 +2,7 @@ import sys
 
 import pygame
 
-from scripts.utils import load_image, load_images, Animation, GoalFlag, LiveHeart
+from scripts.utils import load_image, load_images, Animation, GoalFlag, LiveHeart, Heart
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from scripts.entities import Player, Enemy
@@ -15,14 +15,14 @@ class Game:
 
         # Erstelle Fenster
         pygame.display.set_caption("Jump N Run")            # Fenstername festlegen
-        self.screen = pygame.display.set_mode((640, 480))   # Legt die Fenstergröße fest
+        self.screen = pygame.display.set_mode((640*2, 480*2))   # Legt die Fenstergröße fest
         self.display = pygame.Surface((320, 240))           # Erstellt eine Fläche
 
         # Lege FPS fest
         self.clock = pygame.time.Clock()
 
         # Bewegung des Bildschirms
-        self.img_pos = [160, 260]
+        self.img_pos = [160*2, 260*2]
         self.movement = [False, False]
 
         # Lade Assets (Bilder)
@@ -89,6 +89,11 @@ class Game:
         # Lade Leben des Spielers
         self.LiveHeart = LiveHeart(self)
 
+        # Herzen in Umgebung (Leben)
+        self.hearts = []
+        for heart in self.tilemap.extract([('heart', 0)]):
+            heart = Heart(self, heart['pos'])
+            self.hearts.append(heart)
  
     def run(self):
         """ Hauptspiel-Schleife """
@@ -121,6 +126,10 @@ class Game:
 
             # Leben des Spielers
             self.LiveHeart.render(self.display, offset=render_scroll)
+
+            # Herzen
+            for heart in self.hearts:
+                heart.render(self.display, offset=render_scroll)
 
             # Spieler
             if not self.dead:
@@ -160,6 +169,10 @@ class Game:
                 self.level += 1
                 self.load_game(self.level)
 
+            # Herzen
+            for heart in self.hearts:
+                if heart.collect():
+                    self.hearts.remove(heart)
 
             # ================================================================================================
             # Event-Handling (Eingaben von Tastatur, Maus, etc.)
