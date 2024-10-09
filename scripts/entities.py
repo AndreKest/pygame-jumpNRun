@@ -186,8 +186,13 @@ class Player(PhysicsEntity):
 
         self.air_time += 1
         if self.collisions['down']:
+            # Verliere ein Leben, wenn Spieler zu hoch springt und auf den Boden fällt
+            if self.air_time > 90:
+                self.game.live -= 1
+
             self.air_time = 0
             self.jumps = 2
+
 
         if self.air_time > 120:
             self.game.dead += 1

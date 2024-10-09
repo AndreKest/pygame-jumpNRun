@@ -15,14 +15,13 @@ class Game:
 
         # Erstelle Fenster
         pygame.display.set_caption("Jump N Run")            # Fenstername festlegen
-        self.screen = pygame.display.set_mode((640*2, 480*2))   # Legt die Fenstergröße fest
+        self.screen = pygame.display.set_mode((640, 480))   # Legt die Fenstergröße fest
         self.display = pygame.Surface((320, 240))           # Erstellt eine Fläche
 
         # Lege FPS fest
         self.clock = pygame.time.Clock()
 
         # Bewegung des Bildschirms
-        self.img_pos = [160*2, 260*2]
         self.movement = [False, False]
 
         # Lade Assets (Bilder)
