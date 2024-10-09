@@ -2,7 +2,7 @@ import sys
 
 import pygame
 
-from scripts.utils import load_images
+from scripts.utils import load_images, load_image
 from scripts.tilemap import Tilemap
 
 RENDER_SCALE = 2.0
@@ -31,7 +31,7 @@ class Editor:
             'heart': load_images('tiles/heart'),
         }
 
-        self.level = 3
+        self.level = 10
 
         # Kamera Bewegung
         self.movement = [False, False, False, False]    # [hoch, runter, links, rechts]
@@ -50,6 +50,9 @@ class Editor:
         self.clicking = False
         self.right_clicking = False
         self.shift = False
+
+        self.num_goals = 0
+        self.num_player = 0
 
     def run(self):
         # Hauptspiel-Schleife
@@ -77,7 +80,29 @@ class Editor:
             # Zeichne Kacheln
             # Setze Kachel an Maus-Position (Links-Klick)
             if self.clicking:
-                self.tilemap.tilemap[str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos}
+                tile_type = self.tile_list[self.tile_group]
+                tile_variant = self.tile_variant
+
+                # Prüfe, ob Ziel-Flagge bereits gesetzt wurde
+                if tile_type == 'goal' and tile_variant == 0:
+                    if self.num_goals == 0:
+                        self.num_goals = 1
+                    else:
+                        # Wenn Ziel-Flagge bereits gesetzt wurde, dann entferne die Ziel-Flagge, um nur eine Ziel-Flagge zu haben
+                        self.num_goals = 0
+                        self.tilemap.extract([('goal', 0)], keep=False)
+
+                # Prüfe, ob Spieler-Spawner bereits gesetzt wurde
+                if tile_type == 'spawners' and tile_variant == 0:
+                    if self.num_player == 0:
+                        self.num_player = 1
+                    else:
+                        # Wenn Spieler-Spawner bereits gesetzt wurde, dann entferne den Spieler-Spawner, um nur einen Spieler-Spawner zu haben
+                        self.num_player = 0
+                        self.tilemap.extract([('spawners', 0)], keep=False)        
+
+                self.tilemap.tilemap[str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': list(tile_pos)}
+                    
 
             # Lösche Kachel bei Rechtsklick
             if self.right_clicking:

@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 
 import pygame
 
@@ -62,8 +63,6 @@ class Tilemap:
         if not keep:
             for loc in del_keys:
                 del self.tilemap[loc]
-        
-
 
         return matches
 
@@ -180,7 +179,3 @@ class Tilemap:
             if tile['type'] == 'flag':
                 return True
         return False
-
-
-    
-
