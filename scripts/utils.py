@@ -54,3 +54,32 @@ class Animation:
     def img(self):
         """ Gibt das aktuelle Bild der Animation zurück """
         return self.images[int(self.frame / self.img_duration)]
+    
+class GoalFlag:
+    """ Ziel-Flagge """
+    def __init__(self, game):
+        self.game = game
+        self.img = load_image('tiles/goal/0.png')
+        
+        self.pos = self.game.tilemap.extract([('goal', 0)], keep=True)[0]['pos']
+        
+        self.rect = pygame.Rect(self.pos[0], self.pos[1], self.img.get_width(), self.img.get_height())
+
+    def render(self, surf, offset=(0, 0)):
+        """ Zeichne die Flagge im Sieg-Zustand"""
+        self.img = load_image('tiles/goal/1.png')
+        surf.blit(self.img, (self.pos[0] - offset[0], self.pos[1] - offset[1]))
+
+    def check_finished(self):
+        """ Prüfe, ob das Ziel erreicht wurde """
+        rect = self.rect.copy()
+        # Spieler muss durch die Flagge laufen, um das Ziel zu erreichen
+        img_width = self.img.get_width()
+        img_height = self.img.get_height()
+        reduced_width = img_width // 2
+        reduced_height = img_height // 2
+
+        # Zentriere das verkleinerte Rechteck um die Flagge
+        rect = pygame.Rect(self.pos[0] + (img_width - reduced_width) // 2, self.pos[1] + (img_height - reduced_height) // 2, reduced_width, reduced_height)
+        if rect.colliderect(self.game.player.rect()):
+            return True

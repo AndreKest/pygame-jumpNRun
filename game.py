@@ -2,7 +2,7 @@ import sys
 
 import pygame
 
-from scripts.utils import load_image, load_images, Animation
+from scripts.utils import load_image, load_images, Animation, GoalFlag
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from scripts.entities import Player, Enemy
@@ -24,7 +24,6 @@ class Game:
         # Bewegung des Bildschirms
         self.img_pos = [160, 260]
         self.movement = [False, False]
-        self.scroll = [0, 0]
 
         # Lade Assets (Bilder)
         self.assets = {
@@ -48,9 +47,23 @@ class Game:
 
         # Initialisiere Tilemap
         self.tilemap = Tilemap(self, tile_size=16)
-        self.tilemap.load('./data/maps/map.json')
 
-        # Spawner (Gegner und Spieler)
+        # Level-Number
+        self.level = 0
+
+        # Max Levvel
+        self.max_level = 3
+
+        # Lade Spiel/Level
+        self.load_game(id=self.level)
+
+
+    def load_game(self, id=0):
+        """ Lade das Spiel/Level"""
+
+        self.tilemap.load(f'./data/maps/{id}.json')
+
+        # Spawner (Gengner und Spieler)
         self.enemies = []
         for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1)]):
             if spawner['variant'] == 0:
@@ -63,6 +76,12 @@ class Game:
                 enemy = Enemy(self, spawner['pos'], (8, 15))
                 self.enemies.append(enemy)
 
+        self.dead = 0   # 0 = Spieler lebt, 1 = Spieler ist tot
+
+        self.scroll = [0, 0]
+
+        # Lade Ziel-Flagge
+        self.GoalFlag = GoalFlag(self)
 
  
     def run(self):
@@ -70,6 +89,12 @@ class Game:
         while True:
             # Erstelle Hintergrund
             self.display.blit(self.assets['background'], (0, 0))
+
+            # Wenn Spieler tot ist, dann lade das Spiel neu
+            if self.dead:
+                self.dead += 1
+                if self.dead > 40:
+                    self.load_game(self.level)
 
             # ================================================================================================
             # Kamera Fokus auf den Spieler
@@ -89,13 +114,30 @@ class Game:
             self.tilemap.render(self.display, offset=render_scroll)
 
             # Spieler
-            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
-            self.player.render(self.display, offset=render_scroll)
+            if not self.dead:
+                self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
+                self.player.render(self.display, offset=render_scroll)
 
             # Gegner
             for enemy in self.enemies.copy():
                 enemy.update(self.tilemap, (0, 0))
                 enemy.render(self.display, offset=render_scroll)
+            
+
+            for enemy in self.enemies.copy():
+                self.enemies.remove(enemy)
+            
+
+            # Ziel-Flagge
+            # Wenn enemies leer ist, dann zeige die Flagge an
+            if not self.enemies:
+                self.GoalFlag.render(self.display, offset=render_scroll)
+
+            # Checke, ob der Spieler das Ziel erreicht hat 
+            if self.GoalFlag.check_finished() and not self.enemies:
+                print(f"Level {self.level + 1} beendet")
+                self.level += 1
+                self.load_game(self.level)
 
 
             # ================================================================================================
@@ -135,6 +177,11 @@ class Game:
             
             # Setze die FPS auf 60
             self.clock.tick(60)
+
+            if self.level > self.max_level:
+                print("Spiel beendet - Alle Level geschafft")
+                pygame.quit()
+                sys.exit()
 
 
 if __name__ == '__main__':

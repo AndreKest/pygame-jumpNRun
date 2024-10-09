@@ -173,6 +173,9 @@ class Player(PhysicsEntity):
             self.air_time = 0
             self.jumps = 2
 
+        if self.air_time > 120:
+            self.game.dead += 1
+
         if self.air_time > 4:
             # Wenn Spieler springt (air_time > 4), dann setze Aktion auf 'jump'
             self.set_action('jump')

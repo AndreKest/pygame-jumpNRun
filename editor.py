@@ -30,13 +30,15 @@ class Editor:
             'goal': load_images('tiles/goal'),
         }
 
+        self.level = 3
+
         # Kamera Bewegung
         self.movement = [False, False, False, False]    # [hoch, runter, links, rechts]
         self.scroll = [0, 0]                            # [x, y]
 
         self.tilemap = Tilemap(self, tile_size=16)
         try:
-            self.tilemap.load('./data/maps/map.json')
+            self.tilemap.load(f'./data/maps/{self.level}.json')
         except:
             print(FileNotFoundError("WARNUNG: Karte map.json nicht gefunden! - Starte mit leerer Karte"))
         
@@ -155,7 +157,7 @@ class Editor:
                         self.shift = True
                     if event.key == pygame.K_o:
                         # Speichere die aktuelle Karte
-                        self.tilemap.save('./data/maps/map.json')
+                        self.tilemap.save(f'./data/maps/{self.level}.json')
                     if event.key == pygame.K_t:
                         # Starte autotiling (automatisches Füllen der Kacheln)
                         self.tilemap.autotile()
