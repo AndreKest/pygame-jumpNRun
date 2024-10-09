@@ -31,7 +31,7 @@ class Editor:
             'heart': load_images('tiles/heart'),
         }
 
-        self.level = 2
+        self.level = 3
 
         # Kamera Bewegung
         self.movement = [False, False, False, False]    # [hoch, runter, links, rechts]
