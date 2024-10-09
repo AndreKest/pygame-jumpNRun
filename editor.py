@@ -28,6 +28,7 @@ class Editor:
             'stone': load_images('tiles/stone'),
             'spawners': load_images('tiles/spawners'),
             'goal': load_images('tiles/goal'),
+            'heart': load_images('tiles/heart'),
         }
 
         self.level = 3

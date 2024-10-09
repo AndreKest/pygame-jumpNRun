@@ -87,3 +87,31 @@ class GoalFlag:
         rect = pygame.Rect(self.pos[0] + (img_width - reduced_width) // 2, self.pos[1] + (img_height - reduced_height) // 2, reduced_width, reduced_height)
         if rect.colliderect(self.game.player.rect()):
             return True
+        
+
+class LiveHeart:
+    """ 
+    Leben des Spielers 
+    """
+    def __init__(self, game):
+        self.game = game
+        self.img1 = load_image('tiles/life/0.png')
+        self.img2 = load_image('tiles/life/1.png')
+        self.img3 = load_image('tiles/life/2.png')
+        self.img4 = load_image('tiles/life/3.png')
+        
+    def render(self, surf, offset=(0, 0)):
+        """ Zeichne das Leben des Spielers in die obere linke Ecke """
+        if self.game.live == 3:
+            # Zeichne 3 Leben
+            surf.blit(self.img1, (0, 0))
+        elif self.game.live == 2:
+            # Zeichne 2 Leben
+            surf.blit(self.img2, (0, 0))
+        elif self.game.live == 1:
+            # Zeichne 1 Leben
+            surf.blit(self.img3, (0, 0))
+        else:
+            # Zeichne 0 Leben
+            surf.blit(self.img4, (0, 0))
+        

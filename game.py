@@ -2,7 +2,7 @@ import sys
 
 import pygame
 
-from scripts.utils import load_image, load_images, Animation, GoalFlag
+from scripts.utils import load_image, load_images, Animation, GoalFlag, LiveHeart
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from scripts.entities import Player, Enemy
@@ -40,6 +40,7 @@ class Game:
             'player/jump': Animation(load_images('entities/player/jump')),
             'spawners': load_images('tiles/spawners'),
             'goal': load_images('tiles/goal'),
+            'heart': load_images('tiles/heart'),
         }
 
         # Initialisiere Wolken
@@ -78,10 +79,15 @@ class Game:
 
         self.dead = 0   # 0 = Spieler lebt, 1 = Spieler ist tot
 
+        self.live = 3   # Anzahl der Leben
+
         self.scroll = [0, 0]
 
         # Lade Ziel-Flagge
         self.GoalFlag = GoalFlag(self)
+
+        # Lade Leben des Spielers
+        self.LiveHeart = LiveHeart(self)
 
  
     def run(self):
@@ -113,6 +119,9 @@ class Game:
             # Tilemap (Karte)
             self.tilemap.render(self.display, offset=render_scroll)
 
+            # Leben des Spielers
+            self.LiveHeart.render(self.display, offset=render_scroll)
+
             # Spieler
             if not self.dead:
                 self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
@@ -130,9 +139,15 @@ class Game:
 
             # Check if Enemy killed Player
             # self.player.killed()    # Prüft, ob Gegner den Spieler getroffen hat (Seitlich berührt)
-            if self.player.killed():
+            if self.player.killed() and self.player.invulnerable == 0:
+                self.live -= 1
+                self.player.invulnerable = 40   # Spieler ist für 40 Frames unverwundbar
+
+            # Spieler ist unverwundbar herunterzählen, dass Spieler wieder verwundbar ist
+            self.player.invulnerable = max(0, self.player.invulnerable - 1)
+
+            if self.live <= 0:
                 self.dead += 1
-            
 
             # Ziel-Flagge
             # Wenn enemies leer ist, dann zeige die Flagge an

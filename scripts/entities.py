@@ -178,6 +178,8 @@ class Player(PhysicsEntity):
         self.air_time = 0
         self.jumps = 5
 
+        self.invulnerable = 0
+
     def update(self, tilemap, movement=(0, 0)):
         """ Update die Position und Aktion/Animation des Spielers """
         super().update(tilemap, movement)
@@ -215,3 +217,5 @@ class Player(PhysicsEntity):
             enemy_rect = enemy.rect()
             if player_rect.colliderect(enemy_rect):
                 return True
+            
+        return False
