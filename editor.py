@@ -27,7 +27,7 @@ class Editor:
             'large_decor': load_images('tiles/large_decor'),
             'stone': load_images('tiles/stone'),
             'spawners': load_images('tiles/spawners'),
-            'goal': load_images('tiles/goal'),
+            'goal': [load_images('tiles/goal')[0]], # Benutze nur die erste Flagge, ohne Fahne für den Editor / Zweite Flagge mit Fahne wird im Spiel verwendet, wenn Spiel gewonnen werden kann
             'heart': load_images('tiles/heart'),
         }
 
